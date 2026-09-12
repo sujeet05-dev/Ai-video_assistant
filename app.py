@@ -10,6 +10,15 @@ from core.rag_engine import build_rag_chain, ask_question
 
 load_dotenv()
 
+# Sync Streamlit Cloud secrets to os.environ for cloud deployment
+try:
+    for key, value in st.secrets.items():
+        if isinstance(value, str):
+            os.environ.setdefault(key, str(value))
+except Exception:
+    pass
+
+
 # ─── Page Config ────────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="AI Video Assistant — Meeting Intelligence",
