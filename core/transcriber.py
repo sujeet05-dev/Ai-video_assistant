@@ -1,3 +1,15 @@
+import sys
+from types import ModuleType
+
+# Windows Smart App Control blocks unsigned C-extension DLLs (numba's _typeconv).
+# Whisper only imports numba for optional word-level timestamp alignment (timing.py).
+try:
+    import numba
+except (ImportError, Exception):
+    dummy_numba = ModuleType("numba")
+    dummy_numba.jit = lambda *args, **kwargs: (lambda fn: fn)
+    sys.modules["numba"] = dummy_numba
+
 import whisper
 import os
 import requests

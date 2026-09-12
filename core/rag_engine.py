@@ -6,11 +6,14 @@ from langchain_core.runnables import RunnablePassthrough, RunnableLambda
 from core.vector_store import build_vector_store, load_vector_store, get_retriever
 
 def get_llm():
+    model = os.getenv("MISTRAL_MODEL", "open-mistral-7b")
     return ChatMistralAI(
-        model="mistral-small-latest",
+        model=model,
         mistral_api_key=os.getenv("MISTRAL_API_KEY"),
         temperature=0.3,
+        max_retries=5,
     )
+
 
 def format_docs(docs):
     return "\n\n".join([doc.page_content for doc in docs])
@@ -57,7 +60,7 @@ Context from meeting transcript:
 
 def load_rag_chain():
     vector_store = load_vector_store()
-    retriver = get_retriever()
+    retriever = get_retriever(vector_store)
 
     llm = get_llm()
     prompt = ChatPromptTemplate.from_messages([
@@ -79,7 +82,7 @@ Context from meeting transcript:
 
     rag_chain = (
         {
-            "context":  retriver| RunnableLambda(format_docs),
+            "context":  retriever | RunnableLambda(format_docs),
             "question": RunnablePassthrough(),
         }
         | prompt

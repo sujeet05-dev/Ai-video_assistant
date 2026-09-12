@@ -1,6 +1,7 @@
-import os 
-from langchain_chroma import Chroma 
-from langchain_community.embeddings import HuggingFaceEmbeddings
+import os
+import torch
+from langchain_chroma import Chroma
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
 
@@ -9,9 +10,10 @@ COLLECTION_NAME = "meeting_transcript"
 EMBEDDING_MODEL  = "all-MiniLM-L6-v2"
 
 def get_embeddings():
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     return HuggingFaceEmbeddings(
         model_name = EMBEDDING_MODEL,
-        model_kwargs = {"device" : 'cpu'}
+        model_kwargs = {"device" : device}
     )
 
 def build_vector_store(transcript : str)->Chroma:
